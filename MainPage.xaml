@@ -23,7 +23,6 @@
                     <SymbolIcon Symbol="Upload" />
                 </Button.Content>
             </Button>
-            <ComboBox x:Name="ActiveModel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsDropDownOpen="True" Margin="0,0,822,0" SelectionChanged="ActiveModel_SelectionChanged"/>
 
             <!--Result and status text block-->
             <TextBlock x:Name="StatusBlock" 
