@@ -15,12 +15,12 @@ using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Media.Imaging;
 
 /// <summary>
-/// How to add additional onnx model to this sample application.
+/// How to CHANGE onnx model for this sample application.
 /// 1) Copy new onnx model to "Assets" subfolder.
 /// 2) Add model to "Project" under Assets folder by selecting "Add existing item"; navigate to new onnx model and add.
 ///    Change properties "Build-Action" to "Content"  and  "Copy to Output Directory" to "Copy if Newer"
-/// 3) Add to list of supported models by adding entry to 'onnxFileNames' inializer below.
-///    When you add name of onnx model file name you also neeed to specify the number of lables the model contains.
+/// 3) Update the inialization of the variable "_ourOnnxFileName" to the name of the new model.
+/// 4) In the constructor for OnnxModelOutput update the number of expected output labels.
 /// </summary>
 
 namespace SampleOnnxEvaluationApp
@@ -32,13 +32,7 @@ namespace SampleOnnxEvaluationApp
     {
         private Stopwatch _stopwatch = new Stopwatch();
         private OnnxModel _model = null;
-        private string _ourOnnxFileName = "CheesecakeDonutsFries.onnx";
-        private int _ourOnnxNumLables = 3;
-        private List<Tuple<string, int>> onnxFileNames = new List<Tuple<string,int>>()
-          {
-            new Tuple<string,int>("CheesecakeDonutsFries.onnx" , 3 ),
-            new Tuple<string,int>("Plankton.onnx", 4 )
-          };
+        private string _ourOnnxFileName = "PlanktonModel.onnx";
 
         public sealed class OnnxModelInput
         {
@@ -49,7 +43,7 @@ namespace SampleOnnxEvaluationApp
         {
             public IList<string> classLabel { get; set; }
             public IDictionary<string, float> loss { get; set; }
-            public OnnxModelOutput(int numLables)
+            public OnnxModelOutput()
             {
                 this.classLabel = new List<string>();
 
@@ -57,7 +51,7 @@ namespace SampleOnnxEvaluationApp
                 // length is equal to the number of labels defined in the model. The names are not
                 // required to match what is in the model.
                 this.loss = new Dictionary<string, float>();
-                for (int x = 0; x < numLables; ++x)
+                for (int x = 0; x < 5; ++x)
                     this.loss.Add("Label_" + x.ToString(), 0.0f);
             }
         }
@@ -65,6 +59,7 @@ namespace SampleOnnxEvaluationApp
         public sealed class OnnxModel
         {
             private LearningModelPreview learningModel = null;
+            private int numLabels = -1;
 
             public static async Task<OnnxModel> CreateOnnxModel(StorageFile file)
             {
@@ -83,14 +78,14 @@ namespace SampleOnnxEvaluationApp
                 OnnxModel model = new OnnxModel();
                 learningModel.InferencingOptions.PreferredDeviceKind = LearningModelDeviceKindPreview.LearningDeviceGpu;
                 learningModel.InferencingOptions.ReclaimMemoryAfterEvaluation = true;
+
                 model.learningModel = learningModel;
                 return model;
             }
 
-            public async Task<OnnxModelOutput> EvaluateAsync(OnnxModelInput input, int numLabels)
+            public async Task<OnnxModelOutput> EvaluateAsync(OnnxModelInput input)
             {
-                int zed = numLabels;
-                OnnxModelOutput output = new OnnxModelOutput(zed);
+                OnnxModelOutput output = new OnnxModelOutput();
                 LearningModelBindingPreview binding = new LearningModelBindingPreview(learningModel);
                 binding.Bind("data", input.data);
                 binding.Bind("classLabel", output.classLabel);
@@ -103,13 +98,6 @@ namespace SampleOnnxEvaluationApp
         public MainPage()
         {
             this.InitializeComponent();
-            foreach (var x in onnxFileNames)
-            {
-                this.ActiveModel.Items.Add(x.Item1);
-            }
-            this.ActiveModel.SelectedIndex = 0;
-            _ourOnnxFileName = onnxFileNames[0].Item1;
-            _ourOnnxNumLables = onnxFileNames[0].Item2;
         }
 
         private async Task LoadModelAsync()
@@ -200,7 +188,7 @@ namespace SampleOnnxEvaluationApp
                     _stopwatch.Restart();
                     OnnxModelInput inputData = new OnnxModelInput();
                     inputData.data = frame;
-                    var results = await _model.EvaluateAsync(inputData, _ourOnnxNumLables);
+                    var results = await _model.EvaluateAsync(inputData);
                     var loss = results.loss.ToList().OrderBy(x=>-(x.Value));
                     var labels = results.classLabel;
                     _stopwatch.Stop();
@@ -217,17 +205,6 @@ namespace SampleOnnxEvaluationApp
                 }
 
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => ButtonRun.IsEnabled = true);
-            }
-        }
-
-        private void ActiveModel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int selectedIdx = ActiveModel.SelectedIndex;
-            if  ((selectedIdx >= 0)  &&  (selectedIdx < onnxFileNames.Count))
-            {
-                _ourOnnxFileName = onnxFileNames[selectedIdx].Item1;
-                _ourOnnxNumLables = onnxFileNames[selectedIdx].Item2;
-                _model = null;  // Will force reloading of model.
             }
         }
     }
