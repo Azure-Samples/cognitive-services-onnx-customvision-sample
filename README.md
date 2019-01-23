@@ -22,14 +22,13 @@ This sample application demonstrates how to take a model exported from the [Cust
 ### Adding your own sample model of your own classifier.
 The models provided with the sample recognizes some foods(Cheesecake, Donuts, Fries) and teh other recognizes some plankton images. To add  your own model exported from the [Custom Vision Service](https://www.customvision.ai) do the following, and then build and launch the application:
   1. [Create and train](https://docs.microsoft.com/en-us/azure/cognitive-services/custom-vision-service/getting-started-build-a-classifier) a classifer with the Custom Vision Service. You must choose a "compact" domain such as **General (compact)** to be able to export your classifier. If you have an existing classifier you want to export instead, convert the domain in "settings" by clicking on the gear icon at the top right. In setting, choose a "compact" model, Save, and Train your project.  
-  2. Export your model by going to the Performance tab. Select an iteration trained with a compact domain, an "Export" button will appear. Click on *Export* then *TensorFlow* then *Export.* Click the *Download* button when it appears. A *.onnx file will download.
+  2. Export your model by going to the Performance tab. Select an iteration trained with a compact domain, an "Export" button will appear. Click on *Export* then *ONNX* then *Export.* Click the *Download* button when it appears. A *.onnx file will download.
   3. Drop your *model.onnx file into your project's Assets folder. 
   4. Under Solutions Explorer/ Assets Folder add model file to project by selecting Add Existing Item.
   5. Change properties of model just added: "Build Action" -> "Content"  and  "Copy to Output Directory" -> "Copy if newer"
-  6. Add to list variable "onnxFileNames" name of model just added along with number of lables model contains.
+  6. In the MainPage.xaml.cs file set the "_ourOnnxFileName" constant to the name of model just added and set the "_numLabels" constant to the number of labels that the model contains.
   7. Build and run.
-  8. Use combo-box at to select Model you just added.
-  9. Click button to select image to evaluate.
+  8. Click button to select image to evaluate.
 
 ### Things to note.
 - Image preprocessing is performed by binding method call. Look at method "EvaluateAsync" of class "OnnxModel". Note that it binds a VideoFrame instance to "data"; this binding call will perform cropping and scaling such that the image fits the define size of model (227 x 227 with included models). It will also reformat the image data into a tensor that the model expects(Channel(BGR), Rows, Cols).

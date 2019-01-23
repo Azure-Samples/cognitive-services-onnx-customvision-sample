@@ -19,8 +19,8 @@ using Windows.UI.Xaml.Media.Imaging;
 /// 1) Copy new onnx model to "Assets" subfolder.
 /// 2) Add model to "Project" under Assets folder by selecting "Add existing item"; navigate to new onnx model and add.
 ///    Change properties "Build-Action" to "Content"  and  "Copy to Output Directory" to "Copy if Newer"
-/// 3) Update the inialization of the variable "_ourOnnxFileName" to the name of the new model.
-/// 4) In the constructor for OnnxModelOutput update the number of expected output labels.
+/// 3) Update the inialization of the constant "_ourOnnxFileName" to the name of the new model.
+/// 4) Update the inialization of the constant "_numLabels" to the number of expected output labels.
 /// </summary>
 
 namespace SampleOnnxEvaluationApp
@@ -32,7 +32,8 @@ namespace SampleOnnxEvaluationApp
     {
         private Stopwatch _stopwatch = new Stopwatch();
         private OnnxModel _model = null;
-        private string _ourOnnxFileName = "PlanktonModel.onnx";
+        private const string _ourOnnxFileName = "PlanktonModel.onnx";
+        private const int _numLabels = 5;
 
         public sealed class OnnxModelInput
         {
@@ -51,7 +52,7 @@ namespace SampleOnnxEvaluationApp
                 // length is equal to the number of labels defined in the model. The names are not
                 // required to match what is in the model.
                 this.loss = new Dictionary<string, float>();
-                for (int x = 0; x < 5; ++x)
+                for (int x = 0; x < _numLabels; ++x)
                     this.loss.Add("Label_" + x.ToString(), 0.0f);
             }
         }
