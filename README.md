@@ -14,10 +14,11 @@ This sample application demonstrates how to take a model exported from the [Cust
 ## Getting Started
 
 ### Prerequisites
-- [Windows SDK - Build 17110+] (latest)](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewSDK)
-- [Visual Studio 17](https://www.visualstudio.com/vs/preview/)
-- [Windows 10 Insider Preview](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso)
+- Windows 10 (Version 1809 or higher)
+- [Windows 10 SDK](https://www.microsoft.com/software-download/windowsinsiderpreviewSDK) (Build 17763 or higher)
+- [Visual Studio 2019](https://developer.microsoft.com/windows/downloads) (or Visual Studio 2017, version 15.7.4 or later)
 - An account at [Custom Vision Service](https://www.customvision.ai) 
+
 ### Quickstart
 
 1. clone the repository and open the project in Visual Studio
@@ -35,8 +36,7 @@ The models provided with the sample recognizes some foods(Cheesecake, Donuts, Fr
   8. Click button to select image to evaluate.
 
 ### Things to note.
-- Image preprocessing is performed by binding method call. Look at method "EvaluateAsync" of class "OnnxModel". Note that it binds a VideoFrame instance to "data"; this binding call will perform cropping and scaling such that the image fits the define size of model (227 x 227 with included models). It will also reformat the image data into a tensor that the model expects(Channel(BGR), Rows, Cols).
-- Dictionary(map) based output bindings must pre-allocate number of entries for number of labels model was trained for. Ex: The included Plankton model contains 4 classes(labels) and for this reason the output variable for “loss” has 4 entries added to it.  The name of the labels do not need to match the actual name of the classes in the model.
+- Image preprocessing is performed by binding method call. Look at method "EvaluateAsync" of class "OnnxModel". Note that it binds a VideoFrame instance to "data"; this binding call will perform cropping and scaling such that the image fits the define size of model (224 x 224 with included models). It will also reformat the image data into a tensor that the model expects(Channel(BGR), Rows, Cols).
 - mlgen.exe - This tool generates API code in c# or c++ for a specified ONNX mode.  See [Windows ML overview](https://docs.microsoft.com/en-us/windows/uwp/machine-learning/overview) for description of utility. If you are working with a ONNX model and are unsure what variable types to utilize this utility will generate the correct types.
 
 ## Resources
