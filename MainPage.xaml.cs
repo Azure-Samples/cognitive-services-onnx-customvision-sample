@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.AI.MachineLearning.Preview;
+using Windows.AI.MachineLearning;
 using Windows.Storage;
 using Windows.Media;
 using Windows.Graphics.Imaging;
@@ -20,7 +20,6 @@ using Windows.UI.Xaml.Media.Imaging;
 /// 2) Add model to "Project" under Assets folder by selecting "Add existing item"; navigate to new onnx model and add.
 ///    Change properties "Build-Action" to "Content"  and  "Copy to Output Directory" to "Copy if Newer"
 /// 3) Update the inialization of the constant "_ourOnnxFileName" to the name of the new model.
-/// 4) Update the inialization of the constant "_numLabels" to the number of expected output labels.
 /// </summary>
 
 namespace SampleOnnxEvaluationApp
@@ -33,7 +32,6 @@ namespace SampleOnnxEvaluationApp
         private Stopwatch _stopwatch = new Stopwatch();
         private OnnxModel _model = null;
         private const string _ourOnnxFileName = "PlanktonModel.onnx";
-        private const int _numLabels = 5;
 
         public sealed class OnnxModelInput
         {
@@ -42,56 +40,35 @@ namespace SampleOnnxEvaluationApp
 
         public sealed class OnnxModelOutput
         {
-            public IList<string> classLabel { get; set; }
+            public IReadOnlyList<string> classLabel { get; set; }
             public IDictionary<string, float> loss { get; set; }
-            public OnnxModelOutput()
-            {
-                this.classLabel = new List<string>();
-
-                // For dictionary(map) fields onnx needs the variable to be pre-allocatd such that the 
-                // length is equal to the number of labels defined in the model. The names are not
-                // required to match what is in the model.
-                this.loss = new Dictionary<string, float>();
-                for (int x = 0; x < _numLabels; ++x)
-                    this.loss.Add("Label_" + x.ToString(), 0.0f);
-            }
         }
 
         public sealed class OnnxModel
         {
-            private LearningModelPreview learningModel = null;
-            private int numLabels = -1;
+            private LearningModel learningModel;
+            private LearningModelSession session;
+            private LearningModelBinding binding;
 
-            public static async Task<OnnxModel> CreateOnnxModel(StorageFile file)
+            public static async Task<OnnxModel> CreateFromStreamAsync(IRandomAccessStreamReference stream)
             {
-                LearningModelPreview learningModel = null;
-
-                try
-                {
-                    learningModel = await LearningModelPreview.LoadModelFromStorageFileAsync(file);
-                }
-                catch (Exception e)
-                {
-                    var exceptionStr = e.ToString();
-                    System.Console.WriteLine(exceptionStr);
-                    throw e;
-                }
-                OnnxModel model = new OnnxModel();
-                learningModel.InferencingOptions.PreferredDeviceKind = LearningModelDeviceKindPreview.LearningDeviceGpu;
-                learningModel.InferencingOptions.ReclaimMemoryAfterEvaluation = true;
-
-                model.learningModel = learningModel;
-                return model;
+                OnnxModel onnxModel = new OnnxModel();
+                onnxModel.learningModel = await LearningModel.LoadFromStreamAsync(stream);
+                onnxModel.session = new LearningModelSession(onnxModel.learningModel);
+                onnxModel.binding = new LearningModelBinding(onnxModel.session);
+                return onnxModel;
             }
 
             public async Task<OnnxModelOutput> EvaluateAsync(OnnxModelInput input)
             {
-                OnnxModelOutput output = new OnnxModelOutput();
-                LearningModelBindingPreview binding = new LearningModelBindingPreview(learningModel);
                 binding.Bind("data", input.data);
-                binding.Bind("classLabel", output.classLabel);
-                binding.Bind("loss", output.loss);
-                LearningModelEvaluationResultPreview evalResult = await learningModel.EvaluateAsync(binding, string.Empty);
+                var result = await session.EvaluateAsync(binding, string.Empty);
+
+                OnnxModelOutput output = new OnnxModelOutput();
+                output.classLabel = (result.Outputs["classLabel"] as TensorString).GetAsVectorView();
+                var predictions = result.Outputs["loss"] as IList<IDictionary<string, float>>;
+                output.loss = predictions[0];
+
                 return output;
             }
         }
@@ -110,7 +87,7 @@ namespace SampleOnnxEvaluationApp
                 _stopwatch = Stopwatch.StartNew();
 
                 var modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/{_ourOnnxFileName}"));
-                _model = await OnnxModel.CreateOnnxModel(modelFile);
+                _model = await OnnxModel.CreateFromStreamAsync(modelFile);
 
                 _stopwatch.Stop();
                 Debug.WriteLine($"Loaded {_ourOnnxFileName}: Elapsed time: {_stopwatch.ElapsedMilliseconds} ms");
