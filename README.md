@@ -4,11 +4,12 @@ languages:
 - csharp
 products:
 - azure
-description: "This sample application demonstrates how to take a model exported from the Custom Vision Service in the ONNX format and add it to an application for real-time image classification."
+description: "How to take a model exported from the Custom Vision Service in the ONNX format and add it to an application for real-time image classification."
 urlFragment: cognitive-services-onnx-customvision-sample
 ---
 
-# Sample application for ONNX models exported from Custom Vision Service
+# ONNX models exported from Custom Vision Service
+
 This sample application demonstrates how to take a model exported from the [Custom Vision Service](https://www.customvision.ai) in the ONNX format and add it to an application for real-time image classification. 
 
 ## Getting Started
