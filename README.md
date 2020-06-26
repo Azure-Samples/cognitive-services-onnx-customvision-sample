@@ -38,7 +38,7 @@ The models provided with the sample recognizes some foods(Cheesecake, Donuts, Fr
 
 ### Things to note.
 - Image preprocessing is performed by binding method call. Look at method "EvaluateAsync" of class "OnnxModel". Note that it binds a VideoFrame instance to "data"; this binding call will perform cropping and scaling such that the image fits the define size of model (224 x 224 with included models). It will also reformat the image data into a tensor that the model expects(Channel(BGR), Rows, Cols).
-- mlgen.exe - This tool generates API code in c# or c++ for a specified ONNX mode.  See [Windows ML overview](https://docs.microsoft.com/en-us/windows/uwp/machine-learning/overview) for description of utility. If you are working with a ONNX model and are unsure what variable types to utilize this utility will generate the correct types.
+- mlgen.exe - This tool generates API code in c# or c++ for a specified ONNX model.  See [Windows ML overview](https://docs.microsoft.com/en-us/windows/uwp/machine-learning/overview) for description of utility. If you are working with a ONNX model and are unsure what variable types to utilize this utility will generate the correct types.
 
 ## Resources
 - Link to [ONNX](https://onnx.ai/)
