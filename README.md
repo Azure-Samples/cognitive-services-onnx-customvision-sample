@@ -32,7 +32,7 @@ The models provided with the sample recognizes some foods(Cheesecake, Donuts, Fr
   3. Drop your *model.onnx file into your project's Assets folder. 
   4. Under Solutions Explorer/ Assets Folder add model file to project by selecting Add Existing Item.
   5. Change properties of model just added: "Build Action" -> "Content"  and  "Copy to Output Directory" -> "Copy if newer"
-  6. In the MainPage.xaml.cs file set the "_ourOnnxFileName" constant to the name of model just added and set the "_numLabels" constant to the number of labels that the model contains.
+  6. In the MainPage.xaml.cs file set the "_ourOnnxFileName" constant to the name of model just added.
   7. Build and run.
   8. Click button to select image to evaluate.
 
