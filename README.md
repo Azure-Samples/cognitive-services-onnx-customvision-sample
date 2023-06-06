@@ -10,6 +10,10 @@ urlFragment: cognitive-services-onnx-customvision-sample
 
 # ONNX models exported from Custom Vision Service
 
+> **Warning**
+>
+> This repository is no longer maintained. Please visit [Azure-Samples/customvision-export-samples](https://github.com/Azure-Samples/customvision-export-samples)
+
 This sample application demonstrates how to take a model exported from the [Custom Vision Service](https://www.customvision.ai) in the ONNX format and add it to an application for real-time image classification. 
 
 ## Getting Started
